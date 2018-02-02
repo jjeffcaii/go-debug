@@ -32,3 +32,7 @@ func main() {
 ```
 
 ![screen_shot](screen_shot.png "screen_shot.png")
+
+## Thanks
+- [github.com/fatih/color](https://github.com/fatih/color)
+
