@@ -9,6 +9,7 @@ $ dep ensure -add github.com/jjeffcaii/go-debug
 ```
 
 ## Example
+![screen_shot](screen_shot.png "screen_shot.png")
 
 ```go
 package main
@@ -41,7 +42,6 @@ func main() {
 
 ```
 
-![screen_shot](screen_shot.png "screen_shot.png")
 
 ## Thanks
 - [github.com/fatih/color](https://github.com/fatih/color)
