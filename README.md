@@ -1,6 +1,6 @@
 # go-debug
 
-a colorful debug tool in golang.
+a colorful debug tool like [debug](https://github.com/visionmedia/debug) in golang.
 
 ## Install
 
