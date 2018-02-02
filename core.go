@@ -18,6 +18,7 @@ const (
 	TimeUTC   Flag = 1 << iota
 	LowerCase Flag = 1 << iota
 	UpperCase Flag = 1 << iota
+	Mills     Flag = 1 << iota
 )
 
 var (
@@ -75,27 +76,61 @@ type myDebug struct {
 	nsp string
 	c   *color.Color
 	f   Flag
+	t   time.Time
 }
 
 func (p *myDebug) getPrefix() string {
 	if p.f&TimeLocal == TimeLocal {
-		return fmt.Sprintf("%s [%s]:", time.Now().Format("2006-01-02T15:04:05.000Z07:00"), p.nsp)
+		return p.c.Sprintf("%s [%s]:", time.Now().Format("2006-01-02T15:04:05.000Z07:00"), p.nsp)
 	} else if p.f&TimeUTC == TimeUTC {
-		return fmt.Sprintf("%s [%s]:", time.Now().In(time.UTC).Format("2006-01-02T15:04:05.000Z"), p.nsp)
+		return p.c.Sprintf("%s [%s]:", time.Now().In(time.UTC).Format("2006-01-02T15:04:05.000Z"), p.nsp)
 	}
-	return fmt.Sprintf("[%s]:", p.nsp)
+	return p.c.Sprintf("[%s]:", p.nsp)
+}
+
+func (p *myDebug) getSuffix() *string {
+	if p.f&Mills != Mills {
+		return nil
+	}
+	var old time.Time
+	old, p.t = p.t, time.Now()
+	nano := p.t.UnixNano() - old.UnixNano()
+	s := p.c.Sprintf("+%dms", nano/1000000)
+	return &s
 }
 
 func (p *myDebug) Print(a ...interface{}) {
-	fmt.Fprint(os.Stdout, p.c.Sprint(append([]interface{}{p.getPrefix()}, a...)...))
+	fmt.Fprint(os.Stdout, p.getPrefix(), " ")
+	fmt.Fprint(os.Stdout, a...)
+	var suffix = p.getSuffix()
+	if suffix != nil {
+		fmt.Fprint(os.Stdout, " ", *suffix)
+	}
 }
 
 func (p *myDebug) Println(a ...interface{}) {
-	fmt.Fprint(os.Stdout, p.c.Sprintln(append([]interface{}{p.getPrefix()}, a...)...))
+	fmt.Fprint(os.Stdout, p.getPrefix(), " ")
+	var suffix = p.getSuffix()
+	if suffix != nil {
+		fmt.Fprintln(os.Stdout, append(a, *suffix)...)
+	} else {
+		fmt.Fprintln(os.Stdout, a...)
+	}
 }
 
 func (p *myDebug) Printf(format string, a ...interface{}) {
-	fmt.Fprint(os.Stdout, p.c.Sprintf(p.getPrefix()+" "+format, a...))
+	var suffix = p.getSuffix()
+	if suffix == nil {
+		fmt.Fprintf(os.Stdout, p.getPrefix()+" "+format, a...)
+		return
+	}
+	if strings.HasSuffix(format, "\n") {
+		fmt.Fprintf(os.Stdout, p.getPrefix()+" "+strings.TrimRight(format, "\n"), a...)
+		fmt.Fprint(os.Stdout, " ", *suffix, "\n")
+	} else {
+		fmt.Fprintf(os.Stdout, p.getPrefix()+" "+format, a...)
+		fmt.Fprint(os.Stdout, " ", *suffix)
+	}
 }
 
 func SetFlags(first Flag, others ...Flag) {
@@ -138,7 +173,7 @@ func Debug(namespace string, flags ...Flag) IDebug {
 	} else if f&UpperCase == UpperCase {
 		nsp = strings.ToUpper(namespace)
 	}
-	ret = &myDebug{nsp, co, f}
+	ret = &myDebug{nsp, co, f, time.Now()}
 	warehouse[h] = ret
 	locker.Unlock()
 	return ret
