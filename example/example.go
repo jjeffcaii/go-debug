@@ -9,7 +9,7 @@ func main() {
 	// show all: DEBUG=*
 	// show service only: DEBUG=service:*
 	// show http and redis: DEBUG=http,redis
-	debug.Debug("http", debug.UpperCase).Println("this is a test debug info")
+	debug.Debug("http").Printf("this is a test debug info: %s\n", "hello world")
 	debug.Debug("service:user", debug.UpperCase).Println("this is a test debug info")
 	debug.Debug("service:bill", debug.UpperCase).Println("this is a test debug info")
 	debug.Debug("mysql", debug.TimeLocal).Println("this is a test debug info")
