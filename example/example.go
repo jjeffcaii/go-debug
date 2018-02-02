@@ -1,16 +1,3 @@
-# go-debug
-
-a colorful debug tool in golang.
-
-## Install
-
-```bash
-$ dep ensure -add github.com/jjeffcaii/go-debug
-```
-
-## Example
-
-```go
 package main
 
 import (
@@ -28,7 +15,3 @@ func main() {
 	debug.Debug("mysql", debug.TimeLocal).Println("this is a test debug info")
 	debug.Debug("redis", debug.TimeUTC|debug.UpperCase).Println("this is a test debug info")
 }
-
-```
-
-![screen_shot](screen_shot.png "screen_shot.png")
