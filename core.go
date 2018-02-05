@@ -73,10 +73,11 @@ type IDebug interface {
 }
 
 type myDebug struct {
-	nsp string
-	c   *color.Color
-	f   Flag
-	t   time.Time
+	nsp    string
+	c      *color.Color
+	f      Flag
+	t      time.Time
+	locker *sync.Mutex
 }
 
 func (p *myDebug) getPrefix() string {
@@ -100,6 +101,8 @@ func (p *myDebug) getSuffix() *string {
 }
 
 func (p *myDebug) Print(a ...interface{}) {
+	p.locker.Lock()
+	defer p.locker.Unlock()
 	fmt.Fprint(os.Stdout, p.getPrefix(), " ")
 	fmt.Fprint(os.Stdout, a...)
 	var suffix = p.getSuffix()
@@ -109,6 +112,8 @@ func (p *myDebug) Print(a ...interface{}) {
 }
 
 func (p *myDebug) Println(a ...interface{}) {
+	p.locker.Lock()
+	defer p.locker.Unlock()
 	fmt.Fprint(os.Stdout, p.getPrefix(), " ")
 	var suffix = p.getSuffix()
 	if suffix != nil {
@@ -119,6 +124,8 @@ func (p *myDebug) Println(a ...interface{}) {
 }
 
 func (p *myDebug) Printf(format string, a ...interface{}) {
+	p.locker.Lock()
+	defer p.locker.Unlock()
 	var suffix = p.getSuffix()
 	if suffix == nil {
 		fmt.Fprintf(os.Stdout, p.getPrefix()+" "+format, a...)
@@ -174,7 +181,7 @@ func Debug(namespace string, flags ...Flag) IDebug {
 	} else if f&UpperCase == UpperCase {
 		nsp = strings.ToUpper(namespace)
 	}
-	ret = &myDebug{nsp, co, f, time.Now()}
+	ret = &myDebug{nsp, co, f, time.Now(), &sync.Mutex{}}
 	warehouse[h] = ret
 	locker.Unlock()
 	return ret
