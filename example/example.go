@@ -24,4 +24,5 @@ func main() {
 	debug.Debug("foobar", debug.Mills).Println("this is a test debug info")
 	time.Sleep(234 * time.Millisecond)
 	debug.Debug("foobar", debug.Mills).Println("this is a test debug info")
+	debug.Debug("service:player").Printf("upgrade player air: need_rate=%.2f, costs=%d\n", 3.14, 2)
 }

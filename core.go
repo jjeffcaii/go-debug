@@ -26,7 +26,7 @@ var (
 	allows           = make([]func(string) bool, 0)
 	noop             = &noopDebug{}
 	locker           = &sync.RWMutex{}
-	warehouse        = make(map[int]IDebug)
+	warehouse        = make(map[uint]IDebug)
 	defaultFlag Flag = 0
 )
 
@@ -164,7 +164,8 @@ func Debug(namespace string, flags ...Flag) IDebug {
 	if ok {
 		return found
 	}
-	co := colors[hashcode(namespace)%len(colors)]
+	var h2 = hashcode(namespace) % uint(len(colors))
+	co := colors[int(h2)]
 	locker.Lock()
 	var ret IDebug
 	var nsp = namespace
@@ -179,10 +180,10 @@ func Debug(namespace string, flags ...Flag) IDebug {
 	return ret
 }
 
-func hashcode(s string) int {
-	var h int
+func hashcode(s string) uint {
+	var h uint
 	for _, b := range []byte(s) {
-		h = h<<5 - h + int(b)
+		h = h<<5 - h + uint(b)
 	}
 	return h
 }
